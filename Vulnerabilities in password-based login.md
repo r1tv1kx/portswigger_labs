@@ -28,5 +28,7 @@ Now come in burp suite and notice the request of post method and observe the req
 We can see that there is a username and password field in the payload. 
 
 ### Step 5:
-Right click on the request and send it to the intruder
+Right click on the request and send it to the intruder.(Intruder in Burp Suite automates customized attacks by injecting payloads into HTTP requests to test for vulnerabilities like XSS, SQLi, and brute-force weaknesses.)
+
+![img alt](https://github.com/r1tv1kx/portswigger_labs/blob/d00be2f97523b31e9829b50f878b000dc364956b/images/Screenshot%202025-05-14%20124002.png)
 
