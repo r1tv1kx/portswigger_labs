@@ -26,5 +26,7 @@ Now come in burp suite and notice the request of post method and observe the req
 ![img alt](https://github.com/r1tv1kx/portswigger_labs/blob/f70ca2531c61a38ca5779edec6ab065c6944d4f7/images/2025-05-14_12-30.png)
 
 We can see that there is a username and password field in the payload. 
+
+### Step 5:
 Right click on the request and send it to the intruder
 
