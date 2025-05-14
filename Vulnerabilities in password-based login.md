@@ -9,3 +9,19 @@ In this lab we are initially given with this much information.
 
 Here we will try to login to the given website using the lists provided by brute force method.
 ### Step 1:
+Click on "My account"
+
+![img alt](https://github.com/r1tv1kx/portswigger_labs/blob/9bdfa56452e1374194260f0ad1a8d9945750933e/images/2025-05-14_12-15.png)
+
+### Step 2:
+Open burp suite and click on Proxy>Intercept and turn the Intercept on.
+Now the browser traffic will go through burp suite.
+
+### Step 3:
+Now back to the browser. In the login field give random username and password and hit enter.
+
+### Step 4:
+Now come in burp suite and notice the request of post method and observe the request.
+
+
+
