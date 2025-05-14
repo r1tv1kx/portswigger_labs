@@ -32,3 +32,18 @@ Right click on the request and send it to the intruder.(Intruder in Burp Suite a
 
 ![img alt](https://github.com/r1tv1kx/portswigger_labs/blob/d00be2f97523b31e9829b50f878b000dc364956b/images/Screenshot%202025-05-14%20124002.png)
 
+### Step 6:
+![img alt](https://github.com/r1tv1kx/portswigger_labs/blob/5119d304017c247ed23816845a82c8abeb532d7b/images/dsdfsd0.png)
+
+1. Make sure the attack is set to Sniper Attack(you can read the description of every attack after clicking the drop down menu).
+2. Clear the position for double check.
+3. Select the $incorrect_username$ and click on add in the position section.
+4. From the Candidate usernames list, copy every name from there and paste it in there.
+
+### Step 7:
+Click on start attack.
+
+### Step 8:
+
+
+
