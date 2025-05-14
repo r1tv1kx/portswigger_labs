@@ -23,5 +23,6 @@ Now back to the browser. In the login field give random username and password an
 ### Step 4:
 Now come in burp suite and notice the request of post method and observe the request.
 
+![img alt]
 
 
