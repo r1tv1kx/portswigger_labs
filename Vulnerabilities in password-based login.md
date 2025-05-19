@@ -44,6 +44,13 @@ Right click on the request and send it to the intruder.(Intruder in Burp Suite a
 Click on start attack.
 
 ### Step 8:
+![img alt](https://github.com/r1tv1kx/portswigger_labs/blob/e1e525582e085181f2b86c73e6f5b775770b4f2a/images/username.png)
+Something like this will appear. Observe the results(Length, response)
+You will find the correct username.
 
+### Step 9:
+Repeat the entire process for password.
 
+There you go!
+You successfully cleared this lab.
 
