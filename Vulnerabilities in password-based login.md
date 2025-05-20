@@ -1,4 +1,4 @@
-# Vulnerabilities in password-based login
+# Lab 1: Vulnerabilities in password-based login
 
 In this lab we are initially given with this much information.
 - A website which is vulnerable to username enumeration and password brute-force attacks.
