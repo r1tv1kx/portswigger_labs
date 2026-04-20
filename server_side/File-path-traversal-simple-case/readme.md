@@ -1,169 +1,247 @@
-<img width="741" height="320" alt="{B4BC117A-2526-40C5-B46C-F27D74BDECAA}" src="https://github.com/user-attachments/assets/4a8c12f1-dc80-4e66-a43f-b8f5cdcca87b" />
+# File Path Traversal — Simple Case (Walkthrough)
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4a8c12f1-dc80-4e66-a43f-b8f5cdcca87b" alt="Traffic Generation" width="600"/>
+</p>
+
+---
+
+## Objective
+
+Identify a vulnerable file parameter and exploit directory traversal (`../`) to access sensitive files outside the intended directory.
+
+---
+
+## Steps
+
+### Step 1: Generate Traffic
+
+1. Open the lab in your browser
+2. Make sure **Burp Proxy** is running
+3. Keep **Intercept OFF** (important for HTTP history method)
+4. Click on any product image or functionality that loads an image
+
+> **Goal:** Force the application to send file-related requests
 
 
 
-So welcome to the walkthrough
+---
 
-below are the steps to attempt file path traversal simple case
+### Step 2: Open HTTP History
 
-File Path Traversal — Simple Case (Walkthrough)
-Objective
+Navigate to:
 
-Identify a vulnerable file parameter and exploit directory traversal (../) to access sensitive files outside the intended directory.
-
-Step 1: Generate Traffic
-Open the lab in your browser
-Make sure Burp Proxy is running
-Keep Intercept OFF (important for HTTP history method)
-Click on any product image or functionality that loads an image
-
-👉 Goal: Force the application to send file-related requests
-
-Step 2: Open HTTP History
-Go to:
+```
 Proxy → HTTP history
-You will see multiple requests
+```
 
-👉 You are now analyzing captured traffic (passive recon phase)
+You will see multiple requests captured here.
 
-<img width="804" height="337" alt="{B8E85A48-4467-4EB2-BF8E-2C7478EE4E87}" src="https://github.com/user-attachments/assets/03ac8ea3-1ebe-4389-b690-4211129cabbc" />
- (to faster the search of the image request, we can add filters as well as showen in the below image)
- <img width="1203" height="500" alt="image" src="https://github.com/user-attachments/assets/00ce3115-cde1-45ce-96b3-8a8831372a42" />
+> **You are now in the passive recon phase — analyzing captured traffic.**
 
-Step 3: Identify the Target Request
+![HTTP History](https://github.com/user-attachments/assets/03ac8ea3-1ebe-4389-b690-4211129cabbc)
+
+> 💡 **Tip:** To speed up finding the image request, apply filters in the HTTP history panel.
+
+![HTTP History Filters](https://github.com/user-attachments/assets/00ce3115-cde1-45ce-96b3-8a8831372a42)
+
+---
+
+### Step 3: Identify the Target Request
 
 Look for a request like:
 
+```http
 GET /image?filename=218.png HTTP/1.1
+```
 
-Focus points:
+**Focus points:**
 
-Parameter name: filename
-File type: .png
-Endpoint: /image
+| Field | Value |
+|---|---|
+| Parameter name | `filename` |
+| File type | `.png` |
+| Endpoint | `/image` |
 
-👉 This is your attack surface
-<img width="1148" height="560" alt="image" src="https://github.com/user-attachments/assets/dfd096f8-9c14-4c0d-8173-36dc132687d6" />
+> **This is your attack surface.**
 
-Step 4: Confirm Behavior
-Click the request
-Check Response tab
+![Target Request](https://github.com/user-attachments/assets/dfd096f8-9c14-4c0d-8173-36dc132687d6)
 
-You should see:
+---
 
-Image data or rendered image
+### Step 4: Confirm Behavior
 
-👉 This confirms the parameter is actually used to fetch files
-<img width="887" height="628" alt="{BCB0C839-C726-40CD-A9F5-5FF6A050BF0B}" src="https://github.com/user-attachments/assets/24b045b8-ef9a-4ca9-9eac-ca59e289a5eb" />
+1. Click the request
+2. Check the **Response** tab
 
+You should see image data or a rendered image.
 
-Step 5: Send to Repeater
-Right-click the request
-Click Send to Repeater
-Go to Repeater tab
+> **This confirms the parameter is actively used to fetch files from the filesystem.**
 
-👉 Now you can safely modify and test payloads
+![Confirm Behavior](https://github.com/user-attachments/assets/24b045b8-ef9a-4ca9-9eac-ca59e289a5eb)
 
-Step 6: Test Traversal Payload
+---
 
-Modify this part:
+### Step 5: Send to Repeater
 
+1. Right-click the request
+2. Click **Send to Repeater**
+3. Switch to the **Repeater** tab
+
+> **Now you can safely modify and test payloads without affecting the browser session.**
+
+---
+
+### Step 6: Test Traversal Payload
+
+Modify the `filename` parameter:
+
+**Before:**
+```
 filename=7.jpg
+```
 
-Replace with:
-
+**After:**
+```
 filename=../../../etc/passwd
+```
 
 Full request becomes:
 
+```http
 GET /image?filename=../../../etc/passwd HTTP/1.1
+```
 
-<img width="1008" height="653" alt="image" src="https://github.com/user-attachments/assets/5d5732bb-7657-4bf3-9bb7-6a759310f77f" />
+![Payload Before](https://github.com/user-attachments/assets/5d5732bb-7657-4bf3-9bb7-6a759310f77f)
 
-after replacing it should look like this
+After replacing it should look like this:
 
-<img width="1075" height="629" alt="image" src="https://github.com/user-attachments/assets/744c7d53-9fb7-478e-8c1c-1882ce8067df" />
+![Payload After](https://github.com/user-attachments/assets/744c7d53-9fb7-478e-8c1c-1882ce8067df)
 
-Step 7: Send Request
-Click Send in Repeater
+---
 
-👉 Observe the response carefully
-<img width="1060" height="656" alt="image" src="https://github.com/user-attachments/assets/9484f1b2-8963-4dd3-9f61-9e19d31a89d4" />
+### Step 7: Send Request
 
-Step 8: Verify Exploit
+Click **Send** in Repeater and observe the response carefully.
 
-If vulnerable, you will see:
+![Send Request](https://github.com/user-attachments/assets/9484f1b2-8963-4dd3-9f61-9e19d31a89d4)
 
+---
+
+### Step 8: Verify Exploit
+
+If the application is vulnerable, the response will contain content like:
+
+```
 root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+...
+```
 
-Key indicators:
+**Key indicators of success:**
+- `root:x:0:0` is present
+- Multiple system users are listed
 
-root:x:0:0
-Multiple system users listed
+> ✅ **This confirms successful path traversal.**
 
-👉 This confirms successful path traversal
+![Exploit Verified](https://github.com/user-attachments/assets/0696cc9b-09ec-4383-a7c4-07be92c8f1c0)
 
-<img width="1066" height="1024" alt="{56E72987-7F93-4206-A748-148105EACC9D}" src="https://github.com/user-attachments/assets/0696cc9b-09ec-4383-a7c4-07be92c8f1c0" />
+---
 
-Step 9: Understand Why It Worked
-Application directly used user input in file path
-No validation or sanitization
-../ allowed directory escape
+### Step 9: Understand Why It Worked
 
-<img width="1278" height="295" alt="{416CB55A-74C2-4AF2-977B-99897D4E4203}" src="https://github.com/user-attachments/assets/c0b05c73-eec7-4deb-9629-1cd3992c83ca" />
+- The application **directly used user input** in the file path construction
+- **No validation or sanitization** was applied to the `filename` parameter
+- The `../` sequences were not stripped, allowing **directory escape**
 
-Lab COMPLETED!!
+![Why It Worked](https://github.com/user-attachments/assets/c0b05c73-eec7-4deb-9629-1cd3992c83ca)
 
-Impact
-Attacker can access sensitive files from the server filesystem
-Exposure of critical data such as:
-System files (e.g., /etc/passwd)
-Application configuration files
-Credentials or API keys
-Can lead to:
-Privilege escalation
-Further exploitation
-Full system compromise
-Mitigation
-Implement strict input validation (preferably whitelist-based)
-Restrict file access to a predefined directory only
-Use canonical path validation to ensure paths do not escape the base directory
-Avoid direct use of user input in file system operations
-Conclusion
-The application is vulnerable to path traversal
-Caused by improper handling of user-supplied input
-Allows attackers to access sensitive files outside intended directories
-Leads to compromise of system confidentiality
-Severity Assessment
-Severity: High
-Reasons:
-Direct access to sensitive server files
-No authentication required
-Potential exposure of credentials and system configurations
-CVSS (Approximate)
-Vector: AV:N / AC:L / PR:N / UI:N / S:U / C:H / I:N / A:N
-Score: ~7.5 (High)
+---
 
-Explanation:
+## ✅ Lab Completed!
 
-Network exploitable
-Low attack complexity
-No privileges required
-High confidentiality impact
-OWASP Mapping
-Category: A05: Security Misconfiguration (OWASP Top 10 2021)
-Also related to:
-Improper Input Validation
-Broken Access Control
-Real-World Impact
-Attackers can read sensitive files such as:
-/etc/passwd
-Application configuration files (may contain DB credentials)
-Can result in:
-Credential leakage
-Internal system reconnaissance
-Chaining with other vulnerabilities (e.g., Remote Code Execution)
-In enterprise environments, may lead to full server compromise
+---
 
+## Impact
 
+**An attacker can access sensitive files from the server filesystem, including:**
 
+- System files (e.g., `/etc/passwd`, `/etc/shadow`)
+- Application configuration files
+- Credentials or API keys stored on disk
+
+**This can lead to:**
+- Privilege escalation
+- Further exploitation of discovered credentials
+- Full system compromise
+
+---
+
+## Mitigation
+
+| Recommendation | Details |
+|---|---|
+| Input validation | Use whitelist-based validation — only allow expected filenames/extensions |
+| Restrict file access | Limit file reads to a predefined base directory |
+| Canonical path validation | Resolve the full path and verify it starts with the allowed base directory |
+| Avoid raw user input in filesystem calls | Never pass unsanitized user input directly to file system operations |
+
+---
+
+## Conclusion
+
+- The application is **vulnerable to path traversal**
+- Caused by **improper handling of user-supplied input** in the `filename` parameter
+- Allows attackers to **access sensitive files** outside intended directories
+- Directly compromises **system confidentiality**
+
+---
+
+## Severity Assessment
+
+**Severity: 🔴 High**
+
+| Factor | Detail |
+|---|---|
+| Direct file access | Sensitive server files exposed |
+| Authentication required | None |
+| Credential exposure risk | High |
+
+### CVSS Score (Approximate)
+
+| Metric | Value |
+|---|---|
+| Attack Vector | Network (AV:N) |
+| Attack Complexity | Low (AC:L) |
+| Privileges Required | None (PR:N) |
+| User Interaction | None (UI:N) |
+| Scope | Unchanged (S:U) |
+| Confidentiality Impact | High (C:H) |
+| Integrity Impact | None (I:N) |
+| Availability Impact | None (A:N) |
+| **Score** | **~7.5 (High)** |
+
+---
+
+## OWASP Mapping
+
+**Primary:** [A05: Security Misconfiguration](https://owasp.org/Top10/A05_2021-Security_Misconfiguration/) — OWASP Top 10 2021
+
+**Also related to:**
+- Improper Input Validation
+- Broken Access Control (A01)
+
+---
+
+## Real-World Impact
+
+**Files an attacker may read:**
+- `/etc/passwd` — system user enumeration
+- `/etc/shadow` — hashed passwords (if permissions allow)
+- Application config files — may contain database credentials, API keys
+
+**Attack chains this enables:**
+- Credential leakage → unauthorized access
+- Internal reconnaissance → network mapping
+- Chaining with other vulnerabilities (e.g., Remote Code Execution via log poisoning)
+- In enterprise environments: potential **full server compromise**
