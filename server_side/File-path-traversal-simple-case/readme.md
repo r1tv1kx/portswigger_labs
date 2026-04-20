@@ -10,7 +10,7 @@
 
 <img src="https://github.com/user-attachments/assets/4a8c12f1-dc80-4e66-a43f-b8f5cdcca87b" alt="Lab Overview" width="680"/>
 
-> **Exploit a vulnerable `filename` parameter to escape the intended directory and read sensitive server files using `../` traversal sequences.**
+> **The website lets users load images by name. We trick it into loading a secret system file instead — just by tweaking the filename in the URL.**
 
 </div>
 
@@ -18,27 +18,31 @@
 
 ## Table of Contents
 
-- [Objective](#-objective)
-- [Walkthrough](#-walkthrough)
-- [Step 1 — Generate Traffic](#step-1--generate-traffic)
-- [Step 2 — Open HTTP History](#step-2--open-http-history)
-- [Step 3 — Identify the Target Request](#step-3--identify-the-target-request)
-- [Step 4 — Confirm Behavior](#step-4--confirm-behavior)
-- [Step 5 — Send to Repeater](#step-5--send-to-repeater)
-- [Step 6 — Test Traversal Payload](#step-6--test-traversal-payload)
-- [Step 7 — Send Request](#step-7--send-request)
-- [Step 8 — Verify Exploit](#step-8--verify-exploit)
-- [Step 9 — Understand Why It Worked](#step-9--understand-why-it-worked)
-- [Impact](#-impact)
-- [Mitigation](#-mitigation)
-- [Severity & CVSS](#-severity--cvss)
-- [OWASP Mapping](#-owasp-mapping)
+- [What Are We Doing?](#what-are-we-doing)
+- [Walkthrough](#walkthrough)
+  - [Step 1 — Generate Traffic](#step-1--generate-traffic)
+  - [Step 2 — Open HTTP History](#step-2--open-http-history)
+  - [Step 3 — Identify the Target Request](#step-3--identify-the-target-request)
+  - [Step 4 — Confirm Behavior](#step-4--confirm-behavior)
+  - [Step 5 — Send to Repeater](#step-5--send-to-repeater)
+  - [Step 6 — Test Traversal Payload](#step-6--test-traversal-payload)
+  - [Step 7 — Send Request](#step-7--send-request)
+  - [Step 8 — Verify Exploit](#step-8--verify-exploit)
+  - [Step 9 — Understand Why It Worked](#step-9--understand-why-it-worked)
+- [What Damage Could This Cause?](#what-damage-could-this-cause)
+- [How Do You Fix It?](#how-do-you-fix-it)
+- [How Serious Is This?](#how-serious-is-this)
+- [OWASP Mapping](#owasp-mapping)
 
 ---
 
-## Objective
+## What Are We Doing?
 
-Identify a vulnerable file parameter and exploit **directory traversal** (`../`) to access sensitive files outside the intended directory.
+Imagine a website that shows you product images. Behind the scenes, when you click on an image, the website goes to its file storage and fetches the image by name.
+
+The problem? It trusts whatever name you give it. So instead of asking for an image, we can ask for a sensitive file — like a list of all users on the server — and the website will just hand it over.
+
+That's Path Traversal in a nutshell.
 
 ---
 
@@ -46,26 +50,29 @@ Identify a vulnerable file parameter and exploit **directory traversal** (`../`)
 
 ### Step 1 — Generate Traffic
 
+First, we need to get the website to make a request that loads an image, so we can see exactly how it works.
+
 1. Open the lab in your browser
-2. Ensure **Burp Suite Proxy** is running
-3. Set **Intercept OFF** *(we're using HTTP history, not live intercept)*
-4. Click on any product image to trigger a file-loading request
+2. Make sure **Burp Suite** is open and running in the background *(this is our traffic-watching tool)*
+3. Make sure **Intercept is OFF** — we don't want to pause every request, we just want to watch them
+4. Click on any product image on the page
 
-> **Goal:** Force the application to make file-related HTTP requests that Burp will capture.
+> **Goal:** Get the website to make a file request so we can see it in Burp Suite.
 
-<img src="https://github.com/user-attachments/assets/4a8c12f1-dc80-4e66-a43f-b8f5cdcca87b" alt="Traffic Generation" width="680"/>
 
 ---
 
 ### Step 2 — Open HTTP History
 
-Navigate to **`Proxy HTTP history`** in Burp Suite to view all captured requests.
+Now let's look at all the requests that just happened.
 
-> You are now in the **passive recon phase** — analyzing traffic without touching the server directly.
+Go to **`Proxy → HTTP history`** in Burp Suite. Think of this as a log — every request your browser made is listed here.
+
+> We're just reading the log at this point. We haven't touched anything yet.
 
 <img src="https://github.com/user-attachments/assets/03ac8ea3-1ebe-4389-b690-4211129cabbc" alt="HTTP History" width="680"/>
 
-> **Tip:** Use the **filter bar** to narrow down results and find image-related requests faster.
+> **Tip:** There will be a lot of requests. Use the filter to only show image-related ones so it's easier to find what we need.
 
 <img src="https://github.com/user-attachments/assets/00ce3115-cde1-45ce-96b3-8a8831372a42" alt="HTTP History Filters" width="680"/>
 
@@ -73,21 +80,23 @@ Navigate to **`Proxy HTTP history`** in Burp Suite to view all captured requests
 
 ### Step 3 — Identify the Target Request
 
-Look for a request like:
+Scroll through the list and look for a request that looks like this:
 
 ```http
 GET /image?filename=218.png HTTP/1.1
 ```
 
-**What to focus on:**
+This is the website saying: *"Go find a file called 218.png and show it to the user."*
 
-| Field | Value | Why It Matters |
+**What matters here:**
+
+| Part | What It Is | Why We Care |
 |---|---|---|
-| Endpoint | `/image` | Handles file serving |
-| Parameter | `filename` | Directly controls which file is read |
-| Value | `218.png` | User-supplied — potential injection point |
+| `/image` | The page that serves files | This is what fetches the file |
+| `filename` | The input field | We can change this to anything |
+| `218.png` | The current file being fetched | We're going to swap this out |
 
-> **This is your attack surface.**
+> **This is the weak point. The website is asking us what file to load — and it trusts our answer.**
 
 <img src="https://github.com/user-attachments/assets/dfd096f8-9c14-4c0d-8173-36dc132687d6" alt="Target Request" width="680"/>
 
@@ -95,11 +104,13 @@ GET /image?filename=218.png HTTP/1.1
 
 ### Step 4 — Confirm Behavior
 
-1. Click the request in HTTP history
-2. Open the **Response** tab
-3. Confirm you see rendered image data
+Before we do anything sneaky, let's just confirm this request is actually fetching a real file.
 
-> This proves the `filename` parameter is **directly used** to read files from the server's filesystem — no abstraction layer in between.
+1. Click on the request in the list
+2. Look at the **Response** tab on the right
+3. You should see image data
+
+> If there's image data in the response, it means the server is genuinely reading a file from its storage and sending it back. Which also means — if we change the filename, it'll try to read *that* file instead.
 
 <img src="https://github.com/user-attachments/assets/24b045b8-ef9a-4ca9-9eac-ca59e289a5eb" alt="Confirm Behavior" width="680"/>
 
@@ -107,17 +118,21 @@ GET /image?filename=218.png HTTP/1.1
 
 ### Step 5 — Send to Repeater
 
-1. **Right-click** the request
-2. Select **Send to Repeater**
-3. Navigate to the **Repeater** tab
+Now we want a place where we can freely edit the request and try different things without breaking anything.
 
-> Repeater lets you modify and resend requests freely without disrupting your browser session.
+1. **Right-click** the request
+2. Click **Send to Repeater**
+3. Click on the **Repeater** tab at the top
+
+> Repeater is like a sandbox. We can change the request and hit Send as many times as we want — it won't affect our browser or the rest of the site.
 
 ---
 
 ### Step 6 — Test Traversal Payload
 
-Modify the `filename` value to traverse up the directory tree:
+Here's where the actual trick happens.
+
+We're going to change the filename from a real image to a path that walks *up* the folder structure on the server — and then asks for a sensitive system file.
 
 **Before:**
 ```
@@ -129,7 +144,7 @@ GET /image?filename=7.jpg
 GET /image?filename=../../../etc/passwd
 ```
 
-> The `../` sequences move up one directory each. Three levels up from a typical web root lands you at the filesystem root `/`.
+Each `../` means "go one folder up." So `../../../` from the images folder takes us all the way up to the root of the server's file system. From there, `/etc/passwd` is a standard file that lists all the user accounts on a Linux server.
 
 <img src="https://github.com/user-attachments/assets/5d5732bb-7657-4bf3-9bb7-6a759310f77f" alt="Before Payload" width="680"/>
 
@@ -139,7 +154,7 @@ GET /image?filename=../../../etc/passwd
 
 ### Step 7 — Send Request
 
-Click **Send** in Repeater and carefully examine the response body.
+Hit **Send** in Repeater and look at what comes back in the response.
 
 <img src="https://github.com/user-attachments/assets/9484f1b2-8963-4dd3-9f61-9e19d31a89d4" alt="Send Request" width="680"/>
 
@@ -147,7 +162,7 @@ Click **Send** in Repeater and carefully examine the response body.
 
 ### Step 8 — Verify Exploit
 
-A successful exploit will return the contents of `/etc/passwd`:
+If the server is vulnerable, instead of an image, you'll get back something like this:
 
 ```
 root:x:0:0:root:/root:/bin/bash
@@ -156,12 +171,14 @@ bin:x:2:2:bin:/bin:/usr/sbin/nologin
 ...
 ```
 
-**Indicators of success:**
-- `root:x:0:0` visible in response
-- Multiple system user entries listed
-- HTTP `200 OK` status
+This is the `/etc/passwd` file — a list of all user accounts on the server.
 
-> **Path traversal confirmed. Sensitive file read successfully.**
+**How to know it worked:**
+- You can see `root:x:0:0` in the response
+- There are multiple lines each representing a different system user
+- The server responded with `200 OK` — no error
+
+> **It worked. We asked for an image, got a secret system file instead.**
 
 <img src="https://github.com/user-attachments/assets/0696cc9b-09ec-4383-a7c4-07be92c8f1c0" alt="Exploit Verified" width="680"/>
 
@@ -169,22 +186,23 @@ bin:x:2:2:bin:/bin:/usr/sbin/nologin
 
 ### Step 9 — Understand Why It Worked
 
-The vulnerability exists because the server constructs a file path like this:
+The server builds the file path by simply sticking our input onto the end of a base folder path:
 
 ```python
-# Vulnerable pseudocode
-file_path = BASE_DIR + request.params["filename"]
-# /var/www/images/ + ../../../etc/passwd
-# = /etc/passwd (attacker wins)
+# What the server does (simplified)
+file_path = "/var/www/images/" + filename_from_user
+# We gave it: ../../../etc/passwd
+# So it looked for: /var/www/images/../../../etc/passwd
+# Which is the same as: /etc/passwd
 ```
 
 <img src="https://github.com/user-attachments/assets/c0b05c73-eec7-4deb-9629-1cd3992c83ca" alt="Why It Worked" width="680"/>
 
-**Root causes:**
-- User input used **directly** in filesystem operations
-- No stripping or blocking of `../` sequences
-- No restriction to a base directory
-- No canonicalization of the resolved path
+**Why it failed to stop us:**
+- It took our input and used it directly — no checks whatsoever
+- It never stripped out the `../` parts
+- It never checked whether the final path was still inside the images folder
+- It just blindly fetched whatever file we pointed it at
 
 ---
 
@@ -196,53 +214,58 @@ file_path = BASE_DIR + request.params["filename"]
 
 ---
 
-## Impact
+## What Damage Could This Cause?
 
-An attacker can read **any file the web server process has access to**, including:
+Once an attacker can read files freely from the server, here's what they could get their hands on:
 
-| File | Contents |
+| File | What It Contains |
 |---|---|
-| `/etc/passwd` | System user accounts |
-| `/etc/shadow` | Hashed passwords *(if readable)* |
-| `config.php` / `.env` | Database credentials, API keys |
-| `/proc/self/environ` | Environment variables, secrets |
-| App source code | Business logic, hardcoded secrets |
+| `/etc/passwd` | All user accounts on the server |
+| `/etc/shadow` | Encrypted passwords *(if permissions allow)* |
+| `config.php` / `.env` | Database usernames and passwords, secret API keys |
+| `/proc/self/environ` | Environment variables — often contain secrets |
+| App source code | How the app works, any hardcoded secrets |
 
-**Attack chains this enables:**
-- Credential theft unauthorized access to databases / admin panels
-- Internal recon understand server layout for deeper exploitation
-- Chaining with RCE (e.g., via log poisoning or SSRF)
-- In enterprise environments full server compromise
+**What an attacker could do next:**
+- Use stolen database credentials to log directly into the database
+- Use leaked API keys to impersonate the application
+- Read the source code to find more vulnerabilities
+- In a corporate environment, this could lead to the entire server being taken over
 
 ---
 
-## Mitigation
+## How Do You Fix It?
 
-| Fix | Implementation |
+The fix comes down to one thing: **never trust user input when dealing with files.**
+
+| Fix | What It Means in Plain English |
 |---|---|
-| **Whitelist validation** | Only allow known safe filenames or extensions |
-| **Canonicalize paths** | Resolve the full path, then verify it starts with the allowed base directory |
-| **Restrict to base directory** | Never serve files outside `/var/www/images/` (or equivalent) |
-| **Avoid raw user input** | Never concatenate user input directly into file paths |
-| **Least privilege** | Run the web server as a user with minimal filesystem access |
+| **Whitelist filenames** | Only allow specific known filenames — reject everything else |
+| **Check the final path** | After building the path, check it still points inside the allowed folder |
+| **Lock down the folder** | The app should only be allowed to read files from one specific folder, nothing else |
+| **Don't use raw input** | Never paste user input directly into a file path |
+| **Limit server permissions** | The web server process shouldn't have access to sensitive system files in the first place |
 
 ```python
-# Secure pseudocode example
+# The safe way to do it
 import os
 
-BASE_DIR = "/var/www/images/"
-requested = request.params["filename"]
-safe_path = os.path.realpath(os.path.join(BASE_DIR, requested))
+ALLOWED_FOLDER = "/var/www/images/"
+user_input = request.params["filename"]
 
-if not safe_path.startswith(BASE_DIR):
-abort(400) # Reject traversal attempts
+# Build the full path and resolve any ../ tricks
+full_path = os.path.realpath(os.path.join(ALLOWED_FOLDER, user_input))
 
-serve_file(safe_path)
+# Check the final path is still inside the allowed folder
+if not full_path.startswith(ALLOWED_FOLDER):
+    abort(400)  # Reject it — someone's trying something sneaky
+
+serve_file(full_path)
 ```
 
 ---
 
-## Severity & CVSS
+## How Serious Is This?
 
 <div align="center">
 
@@ -250,28 +273,28 @@ serve_file(safe_path)
 
 </div>
 
-| Metric | Value |
+| Question | Answer |
 |---|---|
-| Attack Vector | Network |
-| Attack Complexity | Low |
-| Privileges Required | None |
-| User Interaction | None |
-| Confidentiality Impact | **High** |
-| Integrity Impact | None |
-| Availability Impact | None |
+| Does the attacker need an account? | No |
+| Does the attacker need to be nearby? | No — works over the internet |
+| Is it hard to pull off? | No — very simple |
+| Can it expose sensitive data? | Yes — any file the server can read |
+| Can it modify or delete files? | No — read only |
 
-> **No authentication needed. Exploitable remotely. High data exposure. Low complexity.**
+> **Anyone on the internet can try this. No login needed. One request is all it takes.**
 
 ---
 
 ## OWASP Mapping
+
+OWASP is a globally recognized standard for web security. Here's where this vulnerability fits:
 
 | Category | Reference |
 |---|---|
 | **Primary** | [A05:2021 — Security Misconfiguration](https://owasp.org/Top10/A05_2021-Security_Misconfiguration/) |
 | Related | [A01:2021 — Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/) |
 | Related | Improper Input Validation (CWE-20) |
-| CVE Pattern | [CWE-22: Path Traversal](https://cwe.mitre.org/data/definitions/22.html) |
+| Vulnerability Type | [CWE-22: Path Traversal](https://cwe.mitre.org/data/definitions/22.html) |
 
 ---
 
