@@ -1,21 +1,53 @@
-# PortSwigger Web Security Academy - Walkthroughs
+<div align="center">
 
-A structured collection of walkthroughs for PortSwigger Web Security Academy labs, organized by vulnerability category.
+# PortSwigger Web Security Academy — Walkthroughs
+
+**A structured, step-by-step reference for solving PortSwigger Web Security Academy labs.**
+
+[![Labs Completed](https://img.shields.io/badge/Labs%20Completed-2-brightgreen?style=for-the-badge)](#completed-labs)
+[![Academy](https://img.shields.io/badge/PortSwigger-Web%20Security%20Academy-orange?style=for-the-badge)](https://portswigger.net/web-security)
+[![Purpose](https://img.shields.io/badge/Purpose-Educational-blue?style=for-the-badge)](#disclaimer)
+
+</div>
 
 ---
 
 ## About
 
-This repository contains detailed walkthroughs for labs from the [PortSwigger Web Security Academy](https://portswigger.net/web-security). Each walkthrough documents the methodology, steps, and key concepts behind solving the lab. The goal is to serve as a personal reference and a resource for others learning web application security.
+This repository documents my progress through the [PortSwigger Web Security Academy](https://portswigger.net/web-security). Each lab gets its own walkthrough covering the methodology, the exact steps taken in Burp Suite, why the vulnerability exists, and how it would be fixed in a real application — not just "click here to solve it."
+
+It exists as a personal reference and, hopefully, a useful resource for anyone else working through the same labs.
+
+## Table of Contents
+
+- [Completed Labs](#completed-labs)
+- [What Each Walkthrough Covers](#what-each-walkthrough-covers)
+- [Repository Structure](#repository-structure)
+- [Roadmap](#roadmap)
+- [Tools Used](#tools-used)
+- [Disclaimer](#disclaimer)
+- [Resources](#resources)
 
 ---
 
 ## Completed Labs
 
-| Category | Lab | Difficulty |
-|---|---|---|
-| Authentication | [Vulnerabilities in Password-Based Login](server_side/authentication/README.md) | Easy |
-| Path Traversal | [File Path Traversal — Simple Case](server_side/path-traversal/README.md) | Easy |
+| # | Category | Lab | Difficulty |
+|---|---|---|---|
+| 1 | Authentication | [Vulnerabilities in Password-Based Login](server_side/authentication/README.md) | 🟢 Easy |
+| 2 | Path Traversal | [File Path Traversal — Simple Case](server_side/path-traversal/README.md) | 🟢 Easy |
+
+---
+
+## What Each Walkthrough Covers
+
+Every lab writeup follows the same format, so you can jump straight to the part you need:
+
+- **Objective** — what the lab is asking you to do, in plain language
+- **Walkthrough** — numbered steps with screenshots, from opening the lab to confirming the exploit
+- **What Damage Could This Cause?** — realistic impact if this showed up in production
+- **How Do You Fix It?** — the actual remediation, with code where relevant
+- **OWASP Mapping** — where the vulnerability lands in the OWASP Top 10 / CWE
 
 ---
 
@@ -33,31 +65,34 @@ portswigger_labs/
     └── ...screenshots referenced by the walkthroughs above
 ```
 
-Each lab folder contains a markdown file with:
-- Lab title and difficulty level
-- Objective
-- Step-by-step walkthrough
-- Key concepts and takeaways
-- Relevant tools and payloads used
+As more labs are completed, they'll be added under `server_side/` or `client_side/`, grouped by vulnerability class.
 
 ---
 
-## Planned Categories
+## Roadmap
 
-More labs will be added over time, organized under `server_side/` and `client_side/` by vulnerability class:
+Categories from the Academy still to be documented:
 
-| Server Side | Client Side |
-|---|---|
-| SQL Injection | Cross-Site Scripting (XSS) |
-| Command Injection | CSRF |
-| Business Logic | CORS |
-| Information Disclosure | Clickjacking |
-| Access Control | DOM-Based Vulnerabilities |
-| File Upload | WebSockets |
-| Race Conditions | PostMessage |
-| SSRF | |
-| XXE | |
-| NoSQL Injection | |
+**Server-side**
+- [ ] SQL Injection
+- [ ] Command Injection
+- [ ] Business Logic
+- [ ] Information Disclosure
+- [ ] Access Control
+- [ ] File Upload
+- [ ] Race Conditions
+- [ ] SSRF
+- [ ] XXE
+- [ ] NoSQL Injection
+
+**Client-side**
+- [ ] Cross-Site Scripting (XSS)
+- [ ] CSRF
+- [ ] CORS
+- [ ] Clickjacking
+- [ ] DOM-Based Vulnerabilities
+- [ ] WebSockets
+- [ ] PostMessage
 
 ---
 
@@ -81,3 +116,11 @@ These walkthroughs are intended strictly for educational purposes. All labs are 
 - [PortSwigger Web Security Academy](https://portswigger.net/web-security)
 - [Burp Suite Documentation](https://portswigger.net/burp/documentation)
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+
+---
+
+<div align="center">
+
+*Maintained by [Ritvik Singh](https://github.com/r1tv1kx) — for educational purposes only.*
+
+</div>
