@@ -10,32 +10,27 @@ This repository contains detailed walkthroughs for labs from the [PortSwigger We
 
 ---
 
+## Completed Labs
+
+| Category | Lab | Difficulty |
+|---|---|---|
+| Authentication | [Vulnerabilities in Password-Based Login](server_side/authentication/README.md) | Easy |
+| Path Traversal | [File Path Traversal — Simple Case](server_side/path-traversal/README.md) | Easy |
+
+---
+
 ## Repository Structure
 
 ```
-portswigger-labs/
-├── server-side/
-│   ├── sql-injection/
+portswigger_labs/
+├── server_side/
 │   ├── authentication/
-│   ├── path-traversal/
-│   ├── command-injection/
-│   ├── business-logic/
-│   ├── information-disclosure/
-│   ├── access-control/
-│   ├── file-upload/
-│   ├── race-conditions/
-│   ├── ssrf/
-│   ├── xxe/
-│   └── nosql-injection/
+│   │   └── README.md
+│   └── path-traversal/
+│       └── README.md
 │
-└── client-side/
-    ├── xss/
-    ├── csrf/
-    ├── cors/
-    ├── clickjacking/
-    ├── dom-based/
-    ├── websockets/
-    └── postmessage/
+└── images/
+    └── ...screenshots referenced by the walkthroughs above
 ```
 
 Each lab folder contains a markdown file with:
@@ -47,36 +42,22 @@ Each lab folder contains a markdown file with:
 
 ---
 
-## Categories
+## Planned Categories
 
-### Server Side
+More labs will be added over time, organized under `server_side/` and `client_side/` by vulnerability class:
 
-| Category | Description |
+| Server Side | Client Side |
 |---|---|
-| SQL Injection | Exploiting SQL queries to extract data, bypass authentication, and perform blind attacks |
-| Authentication | Flaws in login mechanisms, brute force, MFA bypasses |
-| Path Traversal | Reading arbitrary files via directory traversal sequences |
-| Command Injection | Injecting OS commands through vulnerable application inputs |
-| Business Logic | Exploiting flawed assumptions in application workflows |
-| Information Disclosure | Unintended exposure of sensitive data and debug information |
-| Access Control | Broken authorization, IDOR, and privilege escalation |
-| File Upload | Bypassing restrictions to upload and execute malicious files |
-| Race Conditions | Exploiting timing windows in concurrent request handling |
-| SSRF | Forging server-side requests to internal or external systems |
-| XXE | XML external entity injection to read files or trigger SSRF |
-| NoSQL Injection | Attacking NoSQL databases through injection techniques |
-
-### Client Side
-
-| Category | Description |
-|---|---|
-| Cross-Site Scripting (XSS) | Reflected, stored, and DOM-based XSS attacks |
-| CSRF | Forging cross-site requests on behalf of authenticated users |
-| CORS | Exploiting misconfigured cross-origin resource sharing policies |
-| Clickjacking | UI redressing attacks to trick users into unintended actions |
-| DOM-Based Vulnerabilities | Sink and source analysis for client-side exploitation |
-| WebSockets | Attacking real-time WebSocket communications |
-| PostMessage | Exploiting insecure cross-document messaging |
+| SQL Injection | Cross-Site Scripting (XSS) |
+| Command Injection | CSRF |
+| Business Logic | CORS |
+| Information Disclosure | Clickjacking |
+| Access Control | DOM-Based Vulnerabilities |
+| File Upload | WebSockets |
+| Race Conditions | PostMessage |
+| SSRF | |
+| XXE | |
+| NoSQL Injection | |
 
 ---
 

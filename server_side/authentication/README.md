@@ -8,7 +8,7 @@
 [![Tool](https://img.shields.io/badge/Tool-Burp%20Suite-orange?style=for-the-badge)](#)
 [![OWASP](https://img.shields.io/badge/OWASP-A07%3A2021-purple?style=for-the-badge)](#)
 
-<img src="https://github.com/r1tv1kx/portswigger_labs/blob/e26abe68bb50b7e871c6081d5e9d8ec455c85e08/images/Screenshot%202025-05-14%20113905.png" alt="Lab Overview" width="680"/>
+<img src="../../images/Screenshot%202025-05-14%20113905.png" alt="Lab Overview" width="680"/>
 
 > **The website has a login page that doesn't protect itself against repeated login attempts. We're going to use a list of common usernames and passwords to automatically try every combination until we find the right one.**
 
@@ -65,7 +65,7 @@ Our job is to figure out which username and password combination actually works.
 
 Click on **"My account"** on the website to open the login page.
 
-<img src="https://github.com/r1tv1kx/portswigger_labs/blob/9bdfa56452e1374194260f0ad1a8d9945750933e/images/2025-05-14_12-15.png" alt="Login Page" width="680"/>
+<img src="../../images/2025-05-14_12-15.png" alt="Login Page" width="680"/>
 
 ---
 
@@ -91,7 +91,7 @@ Hit **Enter** or click the login button.
 
 Switch back to Burp Suite. You'll see the login request has been caught.
 
-<img src="https://github.com/r1tv1kx/portswigger_labs/blob/f70ca2531c61a38ca5779edec6ab065c6944d4f7/images/2025-05-14_12-30.png" alt="Captured Request" width="680"/>
+<img src="../../images/2025-05-14_12-30.png" alt="Captured Request" width="680"/>
 
 Look at the bottom of the request — you'll see something like:
 
@@ -107,7 +107,7 @@ This is the data your browser was about to send to the server. The `username` an
 
 Right-click anywhere on the request and click **Send to Intruder**.
 
-<img src="https://github.com/r1tv1kx/portswigger_labs/blob/d00be2f97523b31e9829b50f878b000dc364956b/images/Screenshot%202025-05-14%20124002.png" alt="Send to Intruder" width="680"/>
+<img src="../../images/Screenshot%202025-05-14%20124002.png" alt="Send to Intruder" width="680"/>
 
 > **What is Intruder?** It's Burp Suite's automated attack tool. Instead of manually sending one request at a time, Intruder lets you fire off hundreds of requests automatically — swapping in a different value each time. It's the part that does the actual brute-forcing.
 
@@ -117,7 +117,7 @@ Right-click anywhere on the request and click **Send to Intruder**.
 
 Click on the **Intruder** tab. You'll see the request with some parts highlighted.
 
-<img src="https://github.com/r1tv1kx/portswigger_labs/blob/5119d304017c247ed23816845a82c8abeb532d7b/images/dsdfsd0.png" alt="Intruder Setup" width="680"/>
+<img src="../../images/dsdfsd0.png" alt="Intruder Setup" width="680"/>
 
 Do the following in order:
 
@@ -143,7 +143,7 @@ Burp Suite will now automatically send the login request hundreds of times, swap
 
 A results window will open showing every attempt.
 
-<img src="https://github.com/r1tv1kx/portswigger_labs/blob/e1e525582e085181f2b86c73e6f5b775770b4f2a/images/username.png" alt="Attack Results" width="680"/>
+<img src="../../images/username.png" alt="Attack Results" width="680"/>
 
 Look at the **Length** column. Most responses will be the same length — that's the "wrong username" error page. One response will have a different length — that's the server reacting differently, which means that username exists.
 
